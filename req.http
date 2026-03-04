@@ -1,0 +1,38 @@
+### 1. Создать товар
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "яяяяя",
+  "description": "Мощный ноут",
+  "price": 1500.00,
+  "stock": 10,
+  "category": "Electronics",
+  "status": "ACTIVE"
+}
+
+> {% client.global.set("product_id", response.body.id); %}
+
+### 2. Получить список товаров (проверка пагинации)
+GET http://localhost:8080/products?page=0&size=5
+Accept: application/json
+
+### 3. Получить товар по ID (используем ID из первого запроса)
+GET http://localhost:8080/products/{{product_id}}
+Accept: application/json
+
+### 4. Обновить товар
+PUT http://localhost:8080/products/{{product_id}}
+Content-Type: application/json
+
+{
+  "name": "Игровой ноутбук (Обновленный)",
+  "description": "Еще мощнее",
+  "price": 1400.00,
+  "stock": 8,
+  "category": "Electronics",
+  "status": "ACTIVE"
+}
+
+### 5. Мягкое удаление товара (перевод в ARCHIVED)
+DELETE http://localhost:8080/products/{{product_id}}

@@ -1,0 +1,421 @@
+openapi: 3.0.3
+info:
+  title: Minimal API
+  version: 1.0.0
+paths:
+
+  /products:
+    post:
+      operationId: handleCreateProducts
+      description: Создание товара
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreate'
+      responses:
+        '401':
+          description: Токен невалиден или просрочен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '201':
+          description: Товар создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Ошибка валидации входных данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      operationId: handleGetProducts
+      description: Список товаров с пагинацией и фильтрацией
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 20
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/Status'
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+      responses:
+        '401':
+          description: Токен невалиден или просрочен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Успешное получение списка товаров с пагинацией и фильтрацией
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+
+
+  /products/{id}:
+    get:
+      operationId: handleGetOneProduct
+      description: Получение товара по ID
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '401':
+          description: Токен невалиден или просрочен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Успешное получение товара по ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: Товар не найден по ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      operationId: handleChangeOneProduct
+      description: Обновление товара
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: id товара
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdate'
+      responses:
+        '401':
+          description: Токен невалиден или просрочен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Успешное обновление товара
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: Товар не найден по ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Ошибка валидации входных данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: handleDeleteOneProduct
+      description: Мягкое удаление (перевод в статус ARCHIVED)
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: id товара
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Успешное мягкое удаление (перевод в статус ARCHIVED)
+        '404':
+          description: Товар не найден по ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Токен невалиден или просрочен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [ email, password, role ]
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        role:
+          type: string
+          enum: [ USER, SELLER, ADMIN ]
+
+    LoginRequest:
+      type: object
+      required: [ email, password ]
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    TokenResponse:
+      type: object
+      required: [ access_token, refresh_token ]
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+
+    RefreshRequest:
+      type: object
+      required: [ refresh_token ]
+      additionalProperties: false
+      properties:
+        refresh_token:
+          type: string
+
+    ProductBase:
+      type: object
+      description: Продукт
+      properties:
+        name:
+          description: Название товара
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          description: Описание товара
+          type: string
+          maxLength: 4000
+          nullable: true
+        price:
+          description: Цена товара (> 0)
+          type: number
+          format: double
+          minimum: 0.01
+        stock:
+          description: Остаток на складе (>= 0)
+          minimum: 0
+          type: integer
+        category:
+          description: Категория товара
+          type: string
+          minLength: 1
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/Status'
+
+    ProductCreate:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - price
+        - stock
+        - category
+        - status
+      properties:
+        name:
+          description: Название товара
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          description: Описание товара
+          type: string
+          maxLength: 4000
+          nullable: true
+        price:
+          description: Цена товара (> 0)
+          type: number
+          format: double
+          minimum: 0.01
+        stock:
+          description: Остаток на складе (>= 0)
+          minimum: 0
+          type: integer
+        category:
+          description: Категория товара
+          type: string
+          minLength: 1
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/Status'
+
+    ProductUpdate:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - price
+        - stock
+        - category
+        - status
+      properties:
+        name:
+          description: Название товара
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          description: Описание товара
+          type: string
+          maxLength: 4000
+          nullable: true
+        price:
+          description: Цена товара (> 0)
+          type: number
+          format: double
+          minimum: 0.01
+        stock:
+          description: Остаток на складе (>= 0)
+          minimum: 0
+          type: integer
+        category:
+          description: Категория товара
+          type: string
+          minLength: 1
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/Status'
+
+    ProductResponse:
+      allOf:
+        - $ref: '#/components/schemas/ProductBase'
+        - type: object
+          required:
+            - name
+            - price
+            - stock
+            - category
+            - status
+            - id
+            - created_at
+            - updated_at
+          properties:
+            id:
+              description: Идентификатор товара
+              type: string
+              format: uuid
+            created_at:
+              description: Время создания
+              type: string
+              format: date-time
+            updated_at:
+              description: Время обновления
+              type: string
+              format: date-time
+
+    ProductListResponse:
+      type: object
+      required: [ items, totalElements, page, size ]
+      properties:
+        items:
+          type: array
+          description: Товар
+          items:
+            $ref: '#/components/schemas/ProductResponse'
+        totalElements:
+          type: integer
+          description: Общее количество товаров
+        page:
+          type: integer
+          description: Номер страницы
+        size:
+          type: integer
+          description: Размер страницы
+    Status:
+      type: string
+      description: Состояние товара
+      enum: [ACTIVE, INACTIVE, ARCHIVED]
+    ErrorResponse:
+      type: object
+      required: [error_code, message]
+      properties:
+        error_code:
+          type: string
+          description: код ошибки
+          enum:
+            - PRODUCT_NOT_FOUND
+            - PRODUCT_INACTIVE
+            - ORDER_NOT_FOUND
+            - ORDER_LIMIT_EXCEEDED
+            - ORDER_HAS_ACTIVE
+            - INVALID_STATE_TRANSITION
+            - INSUFFICIENT_STOCK
+            - PROMO_CODE_INVALID
+            - PROMO_CODE_MIN_AMOUNT
+            - ORDER_OWNERSHIP_VIOLATION
+            - VALIDATION_ERROR
+            - TOKEN_INVALID
+            - TOKEN_EXPIRED
+            - REFRESH_TOKEN_INVALID
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true

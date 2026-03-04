@@ -1,0 +1,169 @@
+### ===== ТЕСТЫ ВАЛИДАЦИИ =====
+
+### 6. name пустой (minLength: 1)
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "",
+  "description": "Описание",
+  "price": 100.00,
+  "stock": 5,
+  "category": "Electronics",
+  "status": "ACTIVE"
+}
+
+### 7. name слишком длинный (maxLength: 255)
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "description": "Описание",
+  "price": 100.00,
+  "stock": 5,
+  "category": "Electronics",
+  "status": "ACTIVE"
+}
+
+### 8. price отрицательный (minimum: 0.01)
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "Товар",
+  "description": "Описание",
+  "price": -5.00,
+  "stock": 5,
+  "category": "Electronics",
+  "status": "ACTIVE"
+}
+
+### 9. price = 0 (minimum: 0.01)
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "Товар",
+  "description": "Описание",
+  "price": 0,
+  "stock": 5,
+  "category": "Electronics",
+  "status": "ACTIVE"
+}
+
+### 10. stock отрицательный (minimum: 0)
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "Товар",
+  "description": "Описание",
+  "price": 100.00,
+  "stock": -3,
+  "category": "Electronics",
+  "status": "ACTIVE"
+}
+
+### 11. category пустая (minLength: 1)
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "Товар",
+  "description": "Описание",
+  "price": 100.00,
+  "stock": 5,
+  "category": "",
+  "status": "ACTIVE"
+}
+
+### 12. status невалидный (enum: ACTIVE, INACTIVE, ARCHIVED)
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "Товар",
+  "description": "Описание",
+  "price": 100.00,
+  "stock": 5,
+  "category": "Electronics",
+  "status": "DELETED"
+}
+
+### 13. отсутствует обязательное поле name
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "description": "Описание",
+  "price": 100.00,
+  "stock": 5,
+  "category": "Electronics",
+  "status": "ACTIVE"
+}
+
+### 14. отсутствует несколько обязательных полей
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "Товар"
+}
+
+### 15. пустое тело запроса
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{}
+
+### 16. невалидный JSON
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{не json вообще}
+
+### 17. лишнее поле (additionalProperties: false)
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "Товар",
+  "price": 100.00,
+  "stock": 5,
+  "category": "Electronics",
+  "status": "ACTIVE",
+  "hacker_field": "ха-ха"
+}
+
+### 18. невалидный page в query (minimum: 0)
+GET http://localhost:8080/products?page=-1&size=5
+Accept: application/json
+
+### 19. невалидный size в query (minimum: 1)
+GET http://localhost:8080/products?page=0&size=0
+Accept: application/json
+
+### 20. невалидный UUID в path
+GET http://localhost:8080/products/not-a-uuid
+Accept: application/json
+
+### 21. валидация PUT — те же правила
+PUT http://localhost:8080/products/{{product_id}}
+Content-Type: application/json
+
+{
+  "name": "",
+  "price": -1,
+  "stock": -5,
+  "category": "",
+  "status": "WRONG"
+}
+
+### 22. description слишком длинный (maxLength: 4000) — строка из 4001 символа
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "Товар",
+  "description": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
