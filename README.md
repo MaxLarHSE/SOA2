@@ -1,6 +1,14 @@
 # SOA2
 
-Короткий CRUD-сервис для товаров на Go. API описан в `api.yaml`, база данных - PostgreSQL, миграции лежат в `migrations`.
+REST API сервис для CRUD-операций с товарами на Go. API описан в `api.yaml`, база данных - PostgreSQL, миграции лежат в `migrations`.
+
+## Endpoints
+
+- `POST /products` - создать товар
+- `GET /products` - получить список товаров
+- `GET /products/{id}` - получить товар
+- `PUT /products/{id}` - обновить товар
+- `DELETE /products/{id}` - архивировать товар
 
 ## Запуск
 
