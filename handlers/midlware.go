@@ -31,8 +31,8 @@ func RequestMiddlware(next http.Handler) http.Handler {
 			Request_id: uuid.New(),
 			Method:     r.Method,
 			Endpoint:   r.URL.Path,
-			Timestamp:  start, // Время начала запроса
-			UserID:     nil,   // Пока у нас нет авторизации, оставляем null (в будущем будешь доставать из токена)
+			Timestamp:  start,
+			UserID:     nil,
 		}
 
 		if r.Method == "POST" || r.Method == "PUT" || r.Method == "DELETE" {

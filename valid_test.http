@@ -46,8 +46,8 @@ Content-Type: application/json
 {
   "name": "Товар",
   "description": "Описание",
-  "price": 0,
-  "stock": 5,
+  "price": 1,
+  "stock": 1,
   "category": "Electronics",
   "status": "ACTIVE"
 }

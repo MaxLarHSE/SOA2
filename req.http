@@ -26,7 +26,7 @@ PUT http://localhost:8080/products/{{product_id}}
 Content-Type: application/json
 
 {
-  "name": "Игровой ноутбук (Обновленный)",
+  "name": "Игровой ноутбукыы (Обновленный)",
   "description": "Еще мощнее",
   "price": 1400.00,
   "stock": 8,
@@ -36,3 +36,7 @@ Content-Type: application/json
 
 ### 5. Мягкое удаление товара (перевод в ARCHIVED)
 DELETE http://localhost:8080/products/{{product_id}}
+
+
+### ZZZZZZZZZZZZZZZZ
+DELETE http://localhost:8080/products/123

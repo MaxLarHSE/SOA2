@@ -51,14 +51,13 @@ func (s *ProductServer) HandleCreateProducts(w http.ResponseWriter, r *http.Requ
 	resp.Category = req.Category
 	resp.Status = req.Status
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated) // 201 Created
+	w.WriteHeader(http.StatusCreated)
 
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		log.Printf("Ошибка отправки ответа: %v", err)
 	}
 }
 
-// GET /products
 func (s *ProductServer) HandleGetProducts(w http.ResponseWriter, r *http.Request, params api.HandleGetProductsParams) {
 	page := 0
 	if params.Page != nil {
@@ -85,7 +84,6 @@ func (s *ProductServer) HandleGetProducts(w http.ResponseWriter, r *http.Request
 		argId++
 	}
 
-	// 3. Узнаем общее количество подходящих товаров (для поля totalElements)
 	countQuery := "SELECT COUNT(*) FROM products " + whereClause
 	var totalElements int
 	if err := s.Db.QueryRowContext(r.Context(), countQuery, args...).Scan(&totalElements); err != nil {
@@ -138,10 +136,9 @@ func (s *ProductServer) HandleGetProducts(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(resp)
 }
 
-// GET /products/{id}
 func (s *ProductServer) HandleGetOneProduct(w http.ResponseWriter, r *http.Request, id types.UUID) {
 	var resp api.ProductResponse
-	var desc sql.NullString // Специальный тип для nullable полей
+	var desc sql.NullString
 
 	query := `
 		SELECT id, name, description, price, stock, category, status, created_at, updated_at 
@@ -173,7 +170,6 @@ func (s *ProductServer) HandleGetOneProduct(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(resp)
 }
 
-// PUT /products/{id}
 func (s *ProductServer) HandleChangeOneProduct(w http.ResponseWriter, r *http.Request, id types.UUID) {
 	var req api.ProductUpdate
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -217,7 +213,6 @@ func (s *ProductServer) HandleChangeOneProduct(w http.ResponseWriter, r *http.Re
 	json.NewEncoder(w).Encode(resp)
 }
 
-// DELETE /products/{id}
 func (s *ProductServer) HandleDeleteOneProduct(w http.ResponseWriter, r *http.Request, id types.UUID) {
 	query := `
 		UPDATE products
